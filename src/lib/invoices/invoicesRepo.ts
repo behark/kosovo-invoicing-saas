@@ -21,13 +21,23 @@ type InvoiceListRow = {
   id: string;
   number: string;
   status: InvoiceStatus;
-  issue_date: string;
-  due_date: string | null;
+  issue_date: string | Date;
+  due_date: string | Date | null;
   currency: string;
   total_cents: number;
   created_at: Date;
   customer_name: string;
 };
+
+function toDateOnlyString(value: string | Date | null): string | null {
+  if (!value) return null;
+
+  if (value instanceof Date) {
+    return value.toISOString().slice(0, 10);
+  }
+
+  return value.slice(0, 10);
+}
 
 export async function listInvoices(workspaceId: string): Promise<InvoiceListItem[]> {
   const rows = await dbQuery<InvoiceListRow>(
@@ -54,8 +64,8 @@ export async function listInvoices(workspaceId: string): Promise<InvoiceListItem
     id: row.id,
     number: row.number,
     status: row.status,
-    issueDate: row.issue_date,
-    dueDate: row.due_date,
+    issueDate: toDateOnlyString(row.issue_date) ?? "",
+    dueDate: toDateOnlyString(row.due_date),
     customerName: row.customer_name,
     currency: row.currency,
     totalCents: row.total_cents,
@@ -369,8 +379,8 @@ type InvoiceDetailRow = {
   number: string;
   status: InvoiceStatus;
   currency: string;
-  issue_date: string;
-  due_date: string | null;
+  issue_date: string | Date;
+  due_date: string | Date | null;
   vat_percent: number;
   subtotal_cents: number;
   vat_cents: number;
@@ -474,8 +484,8 @@ export async function getInvoiceDetail(
     number: invoice.number,
     status: invoice.status,
     currency: invoice.currency,
-    issueDate: invoice.issue_date,
-    dueDate: invoice.due_date,
+    issueDate: toDateOnlyString(invoice.issue_date) ?? "",
+    dueDate: toDateOnlyString(invoice.due_date),
     vatPercent: invoice.vat_percent,
     subtotalCents: invoice.subtotal_cents,
     vatCents: invoice.vat_cents,

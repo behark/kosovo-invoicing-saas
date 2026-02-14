@@ -36,9 +36,13 @@ function getBillingPageSuccessMessage(params: {
   return null;
 }
 
-function formatDate(date: Date | null): string {
-  if (!date) return "-";
-  return date.toISOString().slice(0, 10);
+function formatDate(value: Date | string | null): string {
+  if (!value) return "-";
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toISOString().slice(0, 10);
 }
 
 export default async function BillingPage({ searchParams }: BillingPageProps) {
